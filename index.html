@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="Analog Stream - Live Cassette Audio">
+<meta property="og:description" content="Live cassette tape audio streaming through digital channels">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://rau.lol/radio/">
+    <meta property="og:site_name" content="Analog Stream">
+    <meta name="description" content="Live cassette tape audio streaming through digital channels">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Analog Stream - Live Cassette Audio">
+    <meta name="twitter:description" content="Live cassette tape audio streaming through digital channels">
+    <title>Analog Audio Stream</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .stream-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 40px;
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stream-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .header {
+            margin-bottom: 40px;
+        }
+
+        .title {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1rem;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+        }
+
+        .player-section {
+            margin-bottom: 30px;
+        }
+
+        .custom-audio-player {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        audio {
+            width: 100%;
+            height: 60px;
+            outline: none;
+            border-radius: 12px;
+        }
+
+        audio::-webkit-media-controls-panel {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+        }
+
+        .status-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .live-dot {
+            width: 12px;
+            height: 12px;
+            background: #ff4757;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .status-text {
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .stream-info {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+        }
+
+        .controls-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .control-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .control-btn:active {
+            transform: translateY(0);
+        }
+
+        .volume-section {
+            margin-bottom: 30px;
+        }
+
+        .volume-label {
+            color: white;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .volume-slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .footer {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.8rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 20px;
+        }
+
+        .expandable-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            margin-top: 20px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .expandable-header {
+            padding: 15px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .expandable-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .expandable-content.expanded {
+            max-height: 200px;
+        }
+
+        .expandable-inner {
+            padding: 20px;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .stream-container {
+                padding: 30px 20px;
+                margin: 10px;
+            }
+            
+            .title {
+                font-size: 2rem;
+            }
+            
+            .controls-section {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stream-container">
+        <div class="header">
+            <h1 class="title">Analog Stream</h1>
+            <p class="subtitle">Live cassette tape audio streaming</p>
+        </div>
+
+        <div class="status-section">
+            <div class="status-indicator">
+                <div class="live-dot"></div>
+                <span class="status-text">LIVE</span>
+            </div>
+            <div class="stream-info">High Quality Audio</div>
+        </div>
+
+        <div class="player-section">
+            <div class="custom-audio-player">
+                <audio controls autoplay src="https://tnl.dump.garden/stream" id="audioPlayer"></audio>
+            </div>
+        </div>
+
+        <div class="volume-section">
+            <label class="volume-label">Volume Control</label>
+            <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="100">
+        </div>
+
+        <div class="controls-section">
+            <button class="control-btn" onclick="toggleMute()">🔊 Mute</button>
+            <button class="control-btn" onclick="refreshStream()">🔄 Refresh</button>
+            <button class="control-btn" onclick="toggleAutoplay()">⏯️ Auto</button>
+            <button class="control-btn" onclick="showStreamInfo()">ℹ️ Info</button>
+        </div>
+
+        <div class="expandable-section">
+            <div class="expandable-header" onclick="toggleSection('technical')">
+                <span>Technical Details</span>
+                <span id="technical-arrow">▼</span>
+            </div>
+            <div class="expandable-content" id="technical-content">
+                <div class="expandable-inner">
+                    <p><strong>Stream URL:</strong> https://tnl.dump.garden/stream</p>
+                    <p><strong>Source:</strong> Cassette Tape Deck → PC Line In</p>
+                    <p><strong>Processing:</strong> VLC CLI → Cloudflare Tunnel</p>
+                    <p><strong>Format:</strong> Live Audio Stream</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable-section">
+            <div class="expandable-header" onclick="toggleSection('settings')">
+                <span>Advanced Settings</span>
+                <span id="settings-arrow">▼</span>
+            </div>
+            <div class="expandable-content" id="settings-content">
+                <div class="expandable-inner">
+                    <p>Buffer settings, quality options, and stream preferences can be configured here.</p>
+                    <p><em>Feature coming soon...</em></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Streaming analog audio through digital channels</p>
+        </div>
+    </div>
+
+    <script>
+        const audioPlayer = document.getElementById('audioPlayer');
+        const volumeSlider = document.getElementById('volumeSlider');
+        let isMuted = false;
+        let autoplayEnabled = true;
+
+        // Volume control
+        volumeSlider.addEventListener('input', function() {
+            audioPlayer.volume = this.value / 100;
+        });
+
+        // Control functions
+        function toggleMute() {
+            if (isMuted) {
+                audioPlayer.muted = false;
+                document.querySelector('.control-btn').innerHTML = '🔊 Mute';
+                isMuted = false;
+            } else {
+                audioPlayer.muted = true;
+                document.querySelector('.control-btn').innerHTML = '🔇 Unmute';
+                isMuted = true;
+            }
+        }
+
+        function refreshStream() {
+            const currentTime = audioPlayer.currentTime;
+            audioPlayer.load();
+            if (autoplayEnabled) {
+                audioPlayer.play().catch(e => console.log('Autoplay prevented'));
+            }
+        }
+
+        function toggleAutoplay() {
+            autoplayEnabled = !autoplayEnabled;
+            audioPlayer.autoplay = autoplayEnabled;
+            const btn = document.querySelectorAll('.control-btn')[2];
+            btn.innerHTML = autoplayEnabled ? '⏯️ Auto' : '⏸️ Manual';
+        }
+
+        function showStreamInfo() {
+            alert(`Stream Status: ${audioPlayer.paused ? 'Paused' : 'Playing'}\nVolume: ${Math.round(audioPlayer.volume * 100)}%\nMuted: ${audioPlayer.muted ? 'Yes' : 'No'}\nAutoplay: ${autoplayEnabled ? 'Enabled' : 'Disabled'}`);
+        }
+
+        // Expandable sections
+        function toggleSection(sectionName) {
+            const content = document.getElementById(sectionName + '-content');
+            const arrow = document.getElementById(sectionName + '-arrow');
+            
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                arrow.textContent = '▼';
+            } else {
+                content.classList.add('expanded');
+                arrow.textContent = '▲';
+            }
+        }
+
+        // Error handling
+        audioPlayer.addEventListener('error', function() {
+            console.log('Stream error occurred');
+            setTimeout(refreshStream, 5000); // Auto-retry after 5 seconds
+        });
+
+        // Connection status monitoring
+        audioPlayer.addEventListener('loadstart', function() {
+            console.log('Loading stream...');
+        });
+
+        audioPlayer.addEventListener('canplay', function() {
+            console.log('Stream ready to play');
+        });
+    </script>
+</body>
+</html>
